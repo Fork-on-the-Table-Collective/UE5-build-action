@@ -3,8 +3,8 @@
   "description": "This action builds ue5 project on win or osx. You can build for dev or for shipping",
   "author": "Tamas Guber",
   "inputs": {
-    "runUATPath": {
-      "description": "Path to RunUAT",
+    "enginePath": {
+      "description": "Path to UE enigne folder (C:/Program Files/Epic Games/UE_5.4)",
       "required": true,
       "default": ""
     },
@@ -26,37 +26,47 @@
     "clean": {
       "description": "Whether to clean",
       "required": false,
-      "default": false
+      "default": "false"
     },
     "cook": {
       "description": "Whether to cook",
       "required": false,
-      "default": true
+      "default": "true"
+    },
+    "compressed":{
+      "description": "Whether compressed",
+      "required": false,
+      "default": "true"
+    },
+    "UpdateIfNeeded":{
+      "description": "Whether update is needed",
+      "required": false,
+      "default": "true"
     },
     "stage": {
       "description": "Whether to stag",
       "required": false,
-      "default": true
+      "default": "true"
     },
     "package": {
       "description": "Whether to package",
       "required": false,
-      "default": false
+      "default": "false"
     },
     "pak": {
       "description": "Whether to pak files",
       "required": false,
-      "default": false
+      "default": "false"
     },
     "server": {
       "description": "Whether to include the server",
       "required": false,
-      "default": false
+      "default": "false"
     },
     "archive": {
       "description": "Whether to pak archive",
       "required": false,
-      "default": false
+      "default": "false"
     },
     "archivePath": {
       "description": "Archive path",
@@ -66,42 +76,42 @@
     "nullrhi": {
       "description": "Whether to execute commands without video output",
       "required": false,
-      "default": false
+      "default": "false"
     },
     "editor": {
       "description": "Whether to compile the editor as well",
       "required": false,
-      "default": true
+      "default": "true"
     },
-    "ecriptIniFiles": {
+    "encryptinifiles": {
       "description": "Encrypt INI Files",
       "required": false,
-      "default": false
+      "default": "false"
     },
     "release": {
       "description": "Create Release Version (Enter new release version number)",
       "required": false,
-      "default": false
+      "default": "false"
     },
     "patch": {
       "description": "Generate a patch based on a release version (enter based on release version number)",
       "required": false,
-      "default": false
+      "default": "false"
     },
     "maps": {
-      "description": "Maps to build and package (comma separated list of maps, leave empty for all maps)",
+      "description": "Maps to build and package (comma separated list of maps, leave false for all maps)",
       "required": false,
-      "default": false
+      "default": "false"
     },
     "deletePDB": {
       "description": "Delete PDB (debug) files",
       "required": false,
-      "default": false
+      "default": "false"
     },
     "anticheatEnabled": {
       "description": "Enable anticheat",
       "required": false,
-      "default": false
+      "default": "false"
     },
     "anticheatPrivateKey": {
       "description": "Base64 encoded private key for anticheat",
