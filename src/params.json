@@ -1,0 +1,120 @@
+{
+  "name": "Build Unreal Engine 5 action",
+  "description": "This action builds ue5 project on win or osx. You can build for dev or for shipping",
+  "author": "Tamas Guber",
+  "inputs": {
+    "runUATPath": {
+      "description": "Path to RunUAT",
+      "required": true,
+      "default": ""
+    },
+    "uprojectPath": {
+      "description": "Path to your uproject file",
+      "required": true,
+      "default": ""
+    },
+    "builConfig": {
+        "description": "Configuration to use. (Development, or Shipping)",
+        "required": false,
+        "default": "Development"
+    },
+    "platform": {
+      "description": "Win64 or Mac",
+      "required": false,
+      "default": "Win64"
+    },
+    "clean": {
+      "description": "Whether to clean",
+      "required": false,
+      "default": false
+    },
+    "cook": {
+      "description": "Whether to cook",
+      "required": false,
+      "default": true
+    },
+    "stage": {
+      "description": "Whether to stag",
+      "required": false,
+      "default": true
+    },
+    "package": {
+      "description": "Whether to package",
+      "required": false,
+      "default": false
+    },
+    "pak": {
+      "description": "Whether to pak files",
+      "required": false,
+      "default": false
+    },
+    "server": {
+      "description": "Whether to include the server",
+      "required": false,
+      "default": false
+    },
+    "archive": {
+      "description": "Whether to pak archive",
+      "required": false,
+      "default": false
+    },
+    "archivePath": {
+      "description": "Archive path",
+      "required": false,
+      "default": ""
+    },
+    "nullrhi": {
+      "description": "Whether to execute commands without video output",
+      "required": false,
+      "default": false
+    },
+    "editor": {
+      "description": "Whether to compile the editor as well",
+      "required": false,
+      "default": true
+    },
+    "ecriptIniFiles": {
+      "description": "Encrypt INI Files",
+      "required": false,
+      "default": false
+    },
+    "release": {
+      "description": "Create Release Version (Enter new release version number)",
+      "required": false,
+      "default": false
+    },
+    "patch": {
+      "description": "Generate a patch based on a release version (enter based on release version number)",
+      "required": false,
+      "default": false
+    },
+    "maps": {
+      "description": "Maps to build and package (comma separated list of maps, leave empty for all maps)",
+      "required": false,
+      "default": false
+    },
+    "deletePDB": {
+      "description": "Delete PDB (debug) files",
+      "required": false,
+      "default": false
+    },
+    "anticheatEnabled": {
+      "description": "Enable anticheat",
+      "required": false,
+      "default": false
+    },
+    "anticheatPrivateKey": {
+      "description": "Base64 encoded private key for anticheat",
+      "required": false,
+      "default": ""
+    },
+    "anticheatPublicCert": {
+      "description": "Base64 encoded public certificate for anticheat",
+      "required": false,
+      "default": ""
+    }
+  },
+  "runs":{
+  "using": "node20",
+  "main": "dist/index.js"}
+}

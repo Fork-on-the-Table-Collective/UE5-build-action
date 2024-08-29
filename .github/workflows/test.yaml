@@ -1,0 +1,39 @@
+name: Google drive Tests
+on:
+  workflow_dispatch:
+
+jobs:
+  command-test:
+    name: Testing the command generation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4.1.1
+      - name: Generate build command
+        uses: ./
+        with:
+          runUATPath: 'C:\Program Files\Epic Games\UE_5.4'
+          uprojectPath: 'C:\Users\guber\work\FotT\repos\ViridianCo\ViridianCo\ViridianCo.uproject'
+          builConfig: "Development"
+          platform: "Win64"
+          clean: true
+          cook: true
+          stage: true
+          package: true
+          pak: true
+          server: true
+          archive: true
+          archivePath: "path/to/archive"
+          nullrhi: true
+          editor: false
+          ecriptIniFiles: false
+          release: "0.4.7"
+          patch": "0.4.7"
+          deletePDB: false
+          anticheatEnabled: true
+          anticheatPrivateKey: "private key"
+          anticheatPublicCert: "cert"
+
+     
+
+

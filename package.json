@@ -1,0 +1,25 @@
+{
+  "name": "ue5-build-action",
+  "version": "1.0.0",
+  "description": "This action allows you to interact with files and folders in Google Drive.",
+  "main": "update_action_yml.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "ncc build main.ts -C -m -o dist && node update_action_yml.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@actions/core": "^1.10.1",
+    "archiver": "^7.0.1",
+    "fs": "^0.0.1-security",
+    "glob": "^11.0.0",
+    "path": "^0.12.7",
+    "yaml": "^2.5.0"
+  },
+  "devDependencies": {
+    "@actions/exec": "^1.1.1",
+    "@types/node": "^22.5.1"
+  }
+}
