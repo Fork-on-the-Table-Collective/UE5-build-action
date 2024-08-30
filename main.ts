@@ -1,7 +1,7 @@
 import * as actions from "@actions/core";
 import * as fs from "fs";
 import * as path from "path";
-import { spawnSync } from 'child_process';
+import { execSync } from 'child_process';
 import * as params from "./src/params.json";
 
 type ParamsType = typeof params;
@@ -155,33 +155,14 @@ const setUpCommands = (params: ParamsType) => {
   }
 };
 
-
-
-try {
-  const result = spawnSync('ls', ['-la'], { encoding: 'utf-8' });
-  console.log(`stdout: ${result.stdout}`);
-  if (result.stderr) {
-    console.error(`stderr: ${result.stderr}`);
-  }
-  console.log(`child process exited with code ${result.status}`);
-} catch (error) {
-  console.error(`Error executing command: ${error.message}`);
-}
-
 const executeCommand = (command: string, commandOptions: string[]) => {
   const sanitizedCommand = command.replace(/\\/g, '\\\\');
   const sanitizedArgs = commandOptions.map(arg => arg.replace(/\\/g, '\\\\'));
-  actions.info(`Executing: ${sanitizedCommand} ${sanitizedArgs.join(" ")}`);
+  const fullCommand = `${sanitizedCommand} ${sanitizedArgs.join(" ")}`;
+  actions.info(`Executing: ${fullCommand}`);
   try {
-    const result = spawnSync(sanitizedCommand, sanitizedArgs, { encoding: 'utf-8' });
-    actions.info(result.stdout);
-    if (result.error) {
-      throw result.error;
-    }
-    if (result.stderr) {
-      throw result.stderr;
-    }
-    actions.info(`child process exited with code ${result.status}`);
+    const result = execSync(fullCommand, { encoding: 'utf-8' });
+    actions.info(result);
   } catch (error) {
     actions.setFailed(`Error executing command: ${error.message}`);
   }
