@@ -1,7 +1,7 @@
 import * as actions from "@actions/core";
 import * as fs from "fs";
 import * as path from "path";
-import { spawn } from 'child_process';
+import { spawnSync } from 'child_process';
 import * as params from "./src/params.json";
 
 type ParamsType = typeof params;
@@ -156,7 +156,6 @@ const setUpCommands = (params: ParamsType) => {
 };
 
 
-import { spawnSync } from 'child_process';
 
 try {
   const result = spawnSync('ls', ['-la'], { encoding: 'utf-8' });
@@ -176,8 +175,11 @@ const executeCommand = (command: string, commandOptions: string[]) => {
   try {
     const result = spawnSync(sanitizedCommand, sanitizedArgs, { encoding: 'utf-8' });
     actions.info(result.stdout);
+    if (result.error) {
+      throw result.error;
+    }
     if (result.stderr) {
-      actions.setFailed(result.stderr);
+      throw result.stderr;
     }
     actions.info(`child process exited with code ${result.status}`);
   } catch (error) {
