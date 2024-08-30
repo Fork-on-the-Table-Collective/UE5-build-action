@@ -156,12 +156,10 @@ const setUpCommands = (params: ParamsType) => {
 };
 
 const executeCommand = (command: string, commandOptions: string[]) => {
-  const sanitizedCommand = command.replace(/\\/g, '\\\\');
-  const sanitizedArgs = commandOptions.map(arg => arg.replace(/\\/g, '\\\\'));
-  actions.info(`Executing: ${sanitizedCommand} ${sanitizedArgs.join(" ")}`);
+  actions.info(`Executing: ${command} ${commandOptions.join(" ")}`);
 
   return new Promise<void>((resolve, reject) => {
-    const child = spawn(sanitizedCommand, sanitizedArgs);
+    const child = spawn(command, commandOptions);
 
     child.stdout.on('data', (data) => {
       actions.info(data.toString());
