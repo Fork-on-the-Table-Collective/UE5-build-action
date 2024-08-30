@@ -155,57 +155,48 @@ const setUpCommands = (params: ParamsType) => {
   }
 };
 
-const executeCommand = (command: string, commandOptions: string[]): Promise<void> => {
+
+import { spawnSync } from 'child_process';
+
+try {
+  const result = spawnSync('ls', ['-la'], { encoding: 'utf-8' });
+  console.log(`stdout: ${result.stdout}`);
+  if (result.stderr) {
+    console.error(`stderr: ${result.stderr}`);
+  }
+  console.log(`child process exited with code ${result.status}`);
+} catch (error) {
+  console.error(`Error executing command: ${error.message}`);
+}
+
+const executeCommand = (command: string, commandOptions: string[]) => {
   const sanitizedCommand = command.replace(/\\/g, '\\\\');
   const sanitizedArgs = commandOptions.map(arg => arg.replace(/\\/g, '\\\\'));
-
   actions.info(`Executing: ${sanitizedCommand} ${sanitizedArgs.join(" ")}`);
-
-  return new Promise((resolve, reject) => {
-    const ueBuild = spawn(sanitizedCommand, sanitizedArgs, { shell: true });
-
-    ueBuild.stdout.on('data', (data) => {
-      actions.info(`${data}`);
-    });
-
-    ueBuild.stderr.on('data', (data) => {
-      actions.setFailed(`stderr: ${data}`);
-    });
-
-    ueBuild.on('close', (code) => {
-      actions.info(`child process exited with code ${code}`);
-      if (code === 0) {
-        resolve(); // Resolve the promise if the exit code is 0
-      } else {
-        reject(new Error(`Process exited with code ${code}`)); // Reject the promise if the exit code is non-zero
-      }
-    });
-
-    ueBuild.on('error', (err) => {
-      reject(err); // Reject the promise if there's an error starting the process
-    });
-  });
+  try {
+    const result = spawnSync(sanitizedCommand, sanitizedArgs, { encoding: 'utf-8' });
+    actions.info(result.stdout);
+    if (result.stderr) {
+      actions.setFailed(result.stderr);
+    }
+    actions.info(`child process exited with code ${result.status}`);
+  } catch (error) {
+    actions.setFailed(`Error executing command: ${error.message}`);
+  }
 };
 
 const main = async () => {
   const params = setParams();
   const commands = setUpCommands(params);
   actions.info(`Rebuild UE Project`);
-  try {
-    await executeCommand(commands[0].shift(),commands[0]);
-    actions.info('Command executed successfully');
-  } catch (error) {
-    actions.setFailed(`Command failed: ${error.message}`);
-  }
+  executeCommand(commands[0].shift(),commands[0]);
+  actions.info('Command executed successfully');
 
   
   actions.info(`Build, Cook, Stage & Package UE Project`);
-  try {
-    await executeCommand(commands[1].shift(),commands[1]);
-    actions.info('Command executed successfully');
-  } catch (error) {
-    actions.setFailed(`Command failed: ${error.message}`);
-  }
+  executeCommand(commands[1].shift(),commands[1]);
+  actions.info('Command executed successfully');
+
   
 };
 
