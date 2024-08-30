@@ -27,10 +27,11 @@ const writeStingBase64ToFile = (content: string, path: string) => {
 };
 
 const setUpCommands = (params: ParamsType) => {
-  const uprojectPath = params.inputs.uprojectPath.default;
-  if (fs.existsSync(uprojectPath)) {
+  if (fs.existsSync(params.inputs.uprojectPath.default)) {
+    const uprojectPath = path.normalize(params.inputs.uprojectPath.default);
     const uprojectDir = path.dirname(uprojectPath);
     const cmdOptions = {};
+    const platform = params.inputs.platform.default
     if (params.inputs.anticheatEnabled.default === "true") {
       const anticheatDir = path.join(uprojectDir, "Build", "NoRedist");
       try {
@@ -60,7 +61,7 @@ const setUpCommands = (params: ParamsType) => {
       params.inputs.UpdateIfNeeded.default === "true" ? "-UpdateIfNeeded" : "";
     cmdOptions["server"] =
       params.inputs.server.default === "true"
-        ? `-server -serverplatform=${params.inputs.platform.default} -noclient`
+        ? `-server -serverplatform=${platform} -noclient`
         : "";
     cmdOptions["cook"] = params.inputs.cook.default === "true" ? "-cook" : "";
     cmdOptions["stage"] =
@@ -94,31 +95,35 @@ const setUpCommands = (params: ParamsType) => {
     let runUAT = "";
     let unrealExe = "";
     let buildcmd = "";
-    if (params.inputs.platform.default === "Win64") {
+    let enginePath = "";
+    if(fs.existsSync(params.inputs.enginePath.default)){
+      enginePath = path.normalize(params.inputs.enginePath.default);
+    }
+    if (platform === "Win64") {
       buildcmd = path.join(
-        params.inputs.enginePath.default,
+        enginePath,
         "Engine",
         "Build",
         "BatchFiles",
         "Build.bat"
       );
       runUAT = path.join(
-        params.inputs.enginePath.default,
+        enginePath,
         "Engine",
         "Build",
         "BatchFiles",
         "RunUAT.bat"
       );
       unrealExe = path.join(
-        params.inputs.enginePath.default,
+        enginePath,
         "Engine",
         "Binaries",
         "Win64",
         "UnrealEditor-Cmd.exe"
       );
-    } else if (params.inputs.platform.default === "Mac") {
+    } else if (platform === "Mac") {
       buildcmd = path.join(
-        params.inputs.enginePath.default,
+        enginePath,
         "Engine",
         "Build",
         "BatchFiles",
@@ -126,14 +131,14 @@ const setUpCommands = (params: ParamsType) => {
         "Build.sh"
       );
       runUAT = path.join(
-        params.inputs.enginePath.default,
+        enginePath,
         "Engine",
         "Build",
         "BatchFiles",
         "RunUAT.command"
       );
       unrealExe = path.join(
-        params.inputs.enginePath.default,
+        enginePath,
         "Engine",
         "Binaries",
         "Mac",
@@ -144,14 +149,14 @@ const setUpCommands = (params: ParamsType) => {
       );
     } else {
       actions.setFailed(
-        `Wrong platform (${params.inputs.platform.default}). It must be Win64 or Mac`
+        `Wrong platform (${platform}). It must be Win64 or Mac`
       );
     }
-    const RebuildProjectCommand:string[] = [`"${buildcmd}"`,"Development",params.inputs.platform.default,`-project="${params.inputs.uprojectPath.default}"`,"-TargetType=Editor", "-Progress", "-NoEngineChanges", "-NoHotReloadFromIDE"] 
-    const BuildAndPackageCommand:string[] = [`"${runUAT}"`,`-ScriptsForProject="${params.inputs.uprojectPath.default}"`, "Turnkey", "-command=VerifySdk", `-platform=${params.inputs.platform.default}`, cmdOptions["UpdateIfNeeded"], "-EditorIO", "-EditorIOPort=56006", `-project="${params.inputs.uprojectPath.default}"`, "BuildCookRun", "-nop4", "-utf8output",cmdOptions["editor"],cmdOptions["clean"],cmdOptions["encryptinifiles"],cmdOptions["release"],cmdOptions["patch"],cmdOptions["server"], "-skipbuildeditor", cmdOptions["cook"], `-project="${params.inputs.uprojectPath.default}"`, `-unrealexe="${unrealExe}"`, `-platform=${params.inputs.platform.default}`, "-installed",cmdOptions["stage"], cmdOptions["archive"], cmdOptions["package"], "-build",cmdOptions["pak"], "-iostore", cmdOptions["compressed"], "-prereqs", `-clientconfig=${params.inputs.builConfig.default}`, "-nodebuginfo", "-nocompile", "-nocompileuat",cmdOptions["nullrhi"]];
+    const RebuildProjectCommand:string[] = [`"${buildcmd}"`,"Development",platform,`-project="${uprojectPath}"`,"-TargetType=Editor", "-Progress", "-NoEngineChanges", "-NoHotReloadFromIDE"] 
+    const BuildAndPackageCommand:string[] = [`"${runUAT}"`,`-ScriptsForProject="${uprojectPath}"`, "Turnkey", "-command=VerifySdk", `-platform=${platform}`, cmdOptions["UpdateIfNeeded"], "-EditorIO", "-EditorIOPort=56006", `-project="${uprojectPath}"`, "BuildCookRun", "-nop4", "-utf8output",cmdOptions["editor"],cmdOptions["clean"],cmdOptions["encryptinifiles"],cmdOptions["release"],cmdOptions["patch"],cmdOptions["server"], "-skipbuildeditor", cmdOptions["cook"], `-project="${uprojectPath}"`, `-unrealexe="${unrealExe}"`, `-platform=${platform}`, "-installed",cmdOptions["stage"], cmdOptions["archive"], cmdOptions["package"], "-build",cmdOptions["pak"], "-iostore", cmdOptions["compressed"], "-prereqs", `-clientconfig=${params.inputs.builConfig.default}`, "-nodebuginfo", "-nocompile", "-nocompileuat",cmdOptions["nullrhi"]];
     return [RebuildProjectCommand,BuildAndPackageCommand];
   } else {
-    actions.setFailed(`Project file ${uprojectPath} does not exists`);
+    actions.setFailed(`Project file ${params.inputs.uprojectPath.default} does not exists`);
   }
 };
 
