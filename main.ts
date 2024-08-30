@@ -26,7 +26,7 @@ const writeStingBase64ToFile = (content: string, path: string) => {
   }
 };
 
-const setUpCommand = (params: ParamsType) => {
+const setUpCommands = (params: ParamsType) => {
   const uprojectPath = params.inputs.uprojectPath.default;
   if (fs.existsSync(uprojectPath)) {
     const uprojectDir = path.dirname(uprojectPath);
@@ -93,7 +93,15 @@ const setUpCommand = (params: ParamsType) => {
 
     let runUAT = "";
     let unrealExe = "";
+    let buildcmd = "";
     if (params.inputs.platform.default === "Win64") {
+      buildcmd = path.join(
+        params.inputs.enginePath.default,
+        "Engine",
+        "Build",
+        "BatchFiles",
+        "Build.bat"
+      );
       runUAT = path.join(
         params.inputs.enginePath.default,
         "Engine",
@@ -109,6 +117,14 @@ const setUpCommand = (params: ParamsType) => {
         "UnrealEditor-Cmd.exe"
       );
     } else if (params.inputs.platform.default === "Mac") {
+      buildcmd = path.join(
+        params.inputs.enginePath.default,
+        "Engine",
+        "Build",
+        "BatchFiles",
+        "Mac",
+        "Build.sh"
+      );
       runUAT = path.join(
         params.inputs.enginePath.default,
         "Engine",
@@ -131,8 +147,9 @@ const setUpCommand = (params: ParamsType) => {
         `Wrong platform (${params.inputs.platform.default}). It must be Win64 or Mac`
       );
     }
-    const command:string[] = [`"${runUAT}"`,`-ScriptsForProject="${params.inputs.uprojectPath.default}"`, "Turnkey", "-command=VerifySdk", `-platform=${params.inputs.platform.default}`, cmdOptions["UpdateIfNeeded"], "-EditorIO", "-EditorIOPort=56006", `-project="${params.inputs.uprojectPath.default}"`, "BuildCookRun", "-nop4", "-utf8output",cmdOptions["editor"],cmdOptions["clean"],cmdOptions["encryptinifiles"],cmdOptions["release"],cmdOptions["patch"],cmdOptions["server"], "-skipbuildeditor", cmdOptions["cook"], `-project="${params.inputs.uprojectPath.default}"`, `-unrealexe="${unrealExe}"`, `-platform=${params.inputs.platform.default}`, "-installed",cmdOptions["stage"], cmdOptions["archive"], cmdOptions["package"], "-build",cmdOptions["pak"], "-iostore", cmdOptions["compressed"], "-prereqs", `-clientconfig=${params.inputs.builConfig.default}`, "-nodebuginfo", "-nocompile", "-nocompileuat",cmdOptions["nullrhi"]];
-    return command;
+    const RebuildProjectCommand:string[] = [`"${buildcmd}"`,"Development",params.inputs.platform.default,`-project="${params.inputs.uprojectPath.default}"`,"-TargetType=Editor", "-Progress", "-NoEngineChanges", "-NoHotReloadFromIDE"] 
+    const BuildAndPackageCommand:string[] = [`"${runUAT}"`,`-ScriptsForProject="${params.inputs.uprojectPath.default}"`, "Turnkey", "-command=VerifySdk", `-platform=${params.inputs.platform.default}`, cmdOptions["UpdateIfNeeded"], "-EditorIO", "-EditorIOPort=56006", `-project="${params.inputs.uprojectPath.default}"`, "BuildCookRun", "-nop4", "-utf8output",cmdOptions["editor"],cmdOptions["clean"],cmdOptions["encryptinifiles"],cmdOptions["release"],cmdOptions["patch"],cmdOptions["server"], "-skipbuildeditor", cmdOptions["cook"], `-project="${params.inputs.uprojectPath.default}"`, `-unrealexe="${unrealExe}"`, `-platform=${params.inputs.platform.default}`, "-installed",cmdOptions["stage"], cmdOptions["archive"], cmdOptions["package"], "-build",cmdOptions["pak"], "-iostore", cmdOptions["compressed"], "-prereqs", `-clientconfig=${params.inputs.builConfig.default}`, "-nodebuginfo", "-nocompile", "-nocompileuat",cmdOptions["nullrhi"]];
+    return [RebuildProjectCommand,BuildAndPackageCommand];
   } else {
     actions.setFailed(`Project file ${uprojectPath} does not exists`);
   }
@@ -160,8 +177,11 @@ const executeCommand = (command:string,commandOptons:string[])=> {
 
 const main = async () => {
   const params = setParams();
-  const command = setUpCommand(params);
-  executeCommand(command.shift(),command);
+  const commands = setUpCommands(params);
+  actions.info(`Rebuild UE Project`);
+  executeCommand(commands[0].shift(),commands[0]);
+  actions.info(`Build, Cook, Stage & Package UE Project`);
+  executeCommand(commands[1].shift(),commands[1]);
 };
 
 main().catch((e: Error) => actions.setFailed(e));
