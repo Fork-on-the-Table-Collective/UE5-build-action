@@ -164,7 +164,7 @@ const executeCommand = (command: string, commandOptions: string[]) => {
   actions.info(`Executing: ${command} ${commandOptions.join(" ")}`);
 
   return new Promise<void>((resolve, reject) => {
-    const child = spawn(command, commandOptions);
+    const child = spawn(command, commandOptions, {shell: true});
 
     child.stdout.on('data', (data) => {
       actions.info(data.toString());
