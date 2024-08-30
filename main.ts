@@ -1,7 +1,7 @@
 import * as actions from "@actions/core";
 import * as fs from "fs";
 import * as path from "path";
-import { execSync } from 'child_process';
+import { spawn } from 'child_process';
 import * as params from "./src/params.json";
 
 type ParamsType = typeof params;
@@ -158,28 +158,48 @@ const setUpCommands = (params: ParamsType) => {
 const executeCommand = (command: string, commandOptions: string[]) => {
   const sanitizedCommand = command.replace(/\\/g, '\\\\');
   const sanitizedArgs = commandOptions.map(arg => arg.replace(/\\/g, '\\\\'));
-  const fullCommand = `${sanitizedCommand} ${sanitizedArgs.join(" ")}`;
-  actions.info(`Executing: ${fullCommand}`);
-  try {
-    const result = execSync(fullCommand, { encoding: 'utf-8' });
-    actions.info(result);
-  } catch (error) {
-    actions.setFailed(`Error executing command: ${error.message}`);
-  }
+  actions.info(`Executing: ${sanitizedCommand} ${sanitizedArgs.join(" ")}`);
+
+  return new Promise<void>((resolve, reject) => {
+    const child = spawn(sanitizedCommand, sanitizedArgs);
+
+    child.stdout.on('data', (data) => {
+      actions.info(data.toString());
+    });
+
+    child.stderr.on('data', (data) => {
+      actions.setFailed(`Error executing command: ${data}`);
+      reject(data.toString());
+    });
+
+    child.on('close', (code) => {
+      actions.info(`child process exited with code ${code}`);
+      if (code !== 0) {
+        reject(`Process exited with code ${code}`);
+      } else {
+        resolve();
+      }
+    });
+  });
 };
 
 const main = async () => {
   const params = setParams();
   const commands = setUpCommands(params);
-  actions.info(`Rebuild UE Project`);
-  executeCommand(commands[0].shift(),commands[0]);
-  actions.info('Command executed successfully');
+  try {
+    actions.info(`Rebuild UE Project`);
+    await executeCommand(commands[0].shift(),commands[0]);
+  } catch (error) {
+    actions.setFailed(error);
+  }
 
-  
-  actions.info(`Build, Cook, Stage & Package UE Project`);
-  executeCommand(commands[1].shift(),commands[1]);
-  actions.info('Command executed successfully');
 
+  try {
+    actions.info(`Build, Cook, Stage & Package UE Project`);
+    await executeCommand(commands[1].shift(),commands[1]);
+  } catch (error) {
+    actions.setFailed(error);
+  }
   
 };
 
