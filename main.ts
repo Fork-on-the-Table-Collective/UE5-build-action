@@ -70,7 +70,7 @@ const setUpCommands = (params: ParamsType) => {
     cmdOptions["package"] =
       params.inputs.package.default === "true" ? "-package" : "";
     cmdOptions["archive"] =
-      params.inputs.clean.default === "archive"
+      params.inputs.archive.default === "true"
         ? `-archive -archivedirectory="${params.inputs.archivePath.default}"`
         : "";
     cmdOptions["nullrhi"] =
