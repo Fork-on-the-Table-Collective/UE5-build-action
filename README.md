@@ -22,7 +22,14 @@ The action requires the following inputs:
 
 The following inputs are optional and provide additional configuration:
 
-- **`buildConfig`**  
+- **`buildMode`**
+  Run `full` (build the Editor, then package), `editor-only` (build the Editor), or `package-only` (run BuildCookRun using a previously built Editor).
+  *Default*: `full`
+
+- **`editorTarget`**
+  Explicit Editor target, such as `ViridianCoEditor`. The action uses Unreal Build Tool target discovery when this input is omitted.
+
+- **`builConfig`**
   Configuration to use (e.g., Development, Shipping)  
   *Required*: `false`  
   *Default*: `Development`
@@ -88,7 +95,7 @@ The following inputs are optional and provide additional configuration:
   *Default*: `"false"`
 
 - **`editor`**  
-  Whether to compile the editor as well  
+  Whether to allow Editor compilation during RunUAT. The standalone Editor build is controlled by `buildMode`.
   *Required*: `false`  
   *Default*: `"true"`
 
@@ -153,7 +160,7 @@ jobs:
       with:
         enginePath: 'C:/Program Files/Epic Games/UE_5.4'
         uprojectPath: 'path/to/your/project.uproject'
-        buildConfig: 'Development'
+        builConfig: 'Development'
         platform: 'Win64'
         # Add other optional parameters as needed
 ```
@@ -187,7 +194,7 @@ jobs:
         with:
           enginePath: 'C:/Program Files/Epic Games/UE_5.4'
           uprojectPath: 'path/to/your/project.uproject'
-          buildConfig: 'Shipping'
+          builConfig: 'Shipping'
           platform: 'Win64'
           clean: 'true'
           cook: 'true'

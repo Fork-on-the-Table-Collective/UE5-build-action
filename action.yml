@@ -10,8 +10,16 @@ inputs:
     description: Path to your uproject file
     required: true
     default: ""
+  buildMode:
+    description: "Build phases to run: full (Editor and package), editor-only, or package-only"
+    required: false
+    default: full
+  editorTarget:
+    description: Explicit Editor target name. Defaults to Unreal Build Tool target discovery
+    required: false
+    default: ""
   builConfig:
-    description: Configuration to use. (Development, or Shipping)
+    description: Configuration to package (e.g. Development, Shipping, DebugGame)
     required: false
     default: Development
   platform:
@@ -63,7 +71,7 @@ inputs:
     required: false
     default: "false"
   editor:
-    description: Whether to compile the editor as well
+    description: Whether to allow Editor compilation during RunUAT
     required: false
     default: "true"
   encryptinifiles:
